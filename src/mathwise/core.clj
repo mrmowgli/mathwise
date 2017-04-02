@@ -1,5 +1,6 @@
 (ns mathwise.core 
   (:require [clojure.tools.cli :refer [parse-opts]]) 
+  (:require [mathwise.calc :refer [display-calc]]) 
   (:gen-class))
 
 (defn apply-matrix [function maxX maxY] 
