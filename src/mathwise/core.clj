@@ -56,7 +56,7 @@
     :validate [#(< 0 % 0x10000) "Must be a number between 0 and 65536"]]
    ["-a" "--algo ALGO" 
     "Algorithm to use.  One of: 
-     sine - A modified Sin(x) * Cos(y)
+     sine      - A modified Sin(x) * Cos(y)
      xor       - Bitwise xor (Default) 
      and       - Bitwise and
      or        - Bitwise or
@@ -67,25 +67,36 @@
      left      - Bitwise shift left
      and-not   - Bitwise and-not"
     :default "xor"
-    :parse-fn #(String/parseStr %)
-    :validate [(partial re-seq #"[sine|Sine|SINE|xor|XOR|Xor|and|And|AND|or|Or|OR|plus|Plus|PLUS]" nil) "Must be a supported algorithm."]]
+    :parse-fn #(str %)
+    :validate [(partial re-seq 
+                 #"[sine|Sine|SINE|xor|XOR|Xor|and|And|AND|or|Or|OR|plus|Plus|PLUS]"
+               ) "Must be a supported algorithm."]]
    ;; A non-idempotent option
-   ["-v" nil "Verbosity level"
-    :id :verbosity
-    :default 0
-    :assoc-fn (fn [m k _] (update-in m [k] inc))]
+   ["-m" "--monochrome" "Display in greyscale"]
+   ["-d" "--debug" "Some debug information"]
    ;; A boolean option defaulting to nil
-   ["-h" "--help"]])
+   [nil "--help" "This help message."]])
 
 
 ;; Equiv to Class Main.
 (defn -main [& args]
-  (let [{:keys [width height functype]} (validate-args args)]  
+  (let [opts (parse-opts args cli-options) {
+                {width :width} :options 
+                {height :height} :options 
+                {functype :algo} :options 
+                {monochrome :monochrome} :options 
+                {debug :debug} :options 
+                {help :help} :options 
+                {errors :errors} :options 
+              } opts]  
+    (cond (= help true) (seq (println "Usage: mathwise [options]\n" (:summary opts)) (System/exit 0)))
     (let [gfx (createFrame width height) operation (get fn-map functype)]
-      (println width height functype)
+      (cond (= debug true) (println width height functype monochrome "\n" opts))      
       (doseq [[x y opr] (apply-matrix operation width height)]
-        (.setColor gfx (java.awt.Color. (clmp (+ opr x)) (clmp (+ opr y)) (clmp (+ opr x y))))
-        ;(.setColor gfx (java.awt.Color. (clmp opr) (clmp opr) (clmp opr)))
+        (cond (= monochrome true) 
+          (.setColor gfx (java.awt.Color. (clmp opr) (clmp opr) (clmp opr)))
+          :else  (.setColor gfx (java.awt.Color. (clmp (+ opr x)) (clmp (+ opr y)) (clmp (+ opr x y))))
+        )
         (.fillRect gfx x y 1 1)  
       )
     )

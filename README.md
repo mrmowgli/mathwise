@@ -31,6 +31,8 @@ java -jar mathwise.jar -h 400 -w 400 xor
 
 ## License
 
+Portions of this code are based on an example from "The Joy of Clojure", second edition by Manning Press.
+
 Copyright © 2017 Andre Lewis
 
 Distributed under the Eclipse Public License version 1.0.
