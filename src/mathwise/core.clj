@@ -1,4 +1,4 @@
-(ns app.core 
+(ns mathwise.core 
   (:require [clojure.tools.cli :refer [parse-opts]]) 
   (:gen-class))
 
@@ -79,18 +79,16 @@
 
 
 ;; Equiv to Class Main.
-(defn -main [& {:keys 
-                    [width height functype] 
-                ;}]
-                :or {width 400 height 400 functype "xor"}}]
-  (let [gfx (createFrame width height) operation (get fn-map functype)]
-    (println width height functype)
-    (doseq [[x y opr] (apply-matrix operation width height)]
-      (.setColor gfx (java.awt.Color. (clmp (+ opr x)) (clmp (+ opr y)) (clmp (+ opr x y))))
-      ;(.setColor gfx (java.awt.Color. (clmp opr) (clmp opr) (clmp opr)))
-      (.fillRect gfx x y 1 1)  
+(defn -main [& args]
+  (let [{:keys [width height functype]} (validate-args args)]  
+    (let [gfx (createFrame width height) operation (get fn-map functype)]
+      (println width height functype)
+      (doseq [[x y opr] (apply-matrix operation width height)]
+        (.setColor gfx (java.awt.Color. (clmp (+ opr x)) (clmp (+ opr y)) (clmp (+ opr x y))))
+        ;(.setColor gfx (java.awt.Color. (clmp opr) (clmp opr) (clmp opr)))
+        (.fillRect gfx x y 1 1)  
+      )
     )
-  )
-        
+  )        
 )
 
